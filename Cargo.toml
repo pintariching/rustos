@@ -1,17 +1,23 @@
 [package]
-name = "os"
+name = "rustos"
 version = "0.1.0"
 
 [build-dependencies]
 bootloader = "0.11"
-kernel = { path = "kernel", artifact = "bin", target = "x86_64-unknown-none" }
+rustos-kernel = { path = "rustos-kernel", artifact = "bin", target = "x86_64-unknown-none" }
+rustos-test = { path = "rustos-test", artifact = "bin", target = "x86_64-unknown-none" }
 
 [dependencies]
 # used for UEFI booting in QEMU
 ovmf-prebuilt = "0.1.0-alpha.1"
 
+[workspace.dependencies]
+x86_64 = "0.14"
+log = "0.4"
+linkme = "0.3"
+
 [workspace]
-members = ["kernel"]
+members = ["rustos-kernel", "rustos-test", "testing"]
 resolver = "2"
 
 [profile.dev]
@@ -19,3 +25,8 @@ panic = "abort"
 
 [profile.release]
 panic = "abort"
+
+[[test]]
+name = "run-qemu"
+path = "tests/run-qemu.rs"
+edition = "2021"

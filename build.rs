@@ -1,3 +1,4 @@
+use std::env::var_os;
 use std::path::PathBuf;
 
 fn main() {
@@ -5,7 +6,8 @@ fn main() {
     let out_dir = PathBuf::from(std::env::var_os("OUT_DIR").unwrap());
     // set by cargo's artifact dependency feature, see
     // https://doc.rust-lang.org/nightly/cargo/reference/unstable.html#artifact-dependencies
-    let kernel = PathBuf::from(std::env::var_os("CARGO_BIN_FILE_KERNEL_kernel").unwrap());
+    let kernel =
+        PathBuf::from(std::env::var_os("CARGO_BIN_FILE_RUSTOS_KERNEL_rustos-kernel").unwrap());
 
     // create an UEFI disk image (optional)
     let uefi_path = out_dir.join("uefi.img");
@@ -14,12 +16,36 @@ fn main() {
         .unwrap();
 
     // create a BIOS disk image
-    let bios_path = out_dir.join("bios.img");
-    bootloader::BiosBoot::new(&kernel)
-        .create_disk_image(&bios_path)
-        .unwrap();
+    #[cfg(feature = "bios-boot")]
+    {
+        let bios_path = out_dir.join("bios.img");
+        bootloader::BiosBoot::new(&kernel)
+            .create_disk_image(&bios_path)
+            .unwrap();
+    }
+
+    build_test_kernel(out_dir);
 
     // pass the disk image paths as env variables to the `main.rs`
     println!("cargo:rustc-env=UEFI_PATH={}", uefi_path.display());
+
+    #[cfg(feature = "bios-boot")]
     println!("cargo:rustc-env=BIOS_PATH={}", bios_path.display());
+
+    println!("cargo:rustc-env=KERNEL_PATH={}", kernel.display());
+}
+
+fn build_test_kernel(out_dir: PathBuf) {
+    let test_kernel = PathBuf::from(var_os("CARGO_BIN_FILE_RUSTOS_TEST_rustos-test").unwrap());
+
+    // create an UEFI disk image (optional)
+    let uefi_path = out_dir.join("test_kernel_uefi.img");
+    bootloader::UefiBoot::new(&test_kernel)
+        .create_disk_image(&uefi_path)
+        .unwrap();
+
+    println!(
+        "cargo:rustc-env=TEST_KERNEL_UEFI_PATH={}",
+        uefi_path.display()
+    );
 }
