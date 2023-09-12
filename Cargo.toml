@@ -5,6 +5,9 @@ version = "0.1.0"
 
 [dependencies]
 
+[build-dependencies]
+llvm-tools = "0.1"
+
 
 [workspace]
 members = ["rustos-bootloader"]
@@ -23,8 +26,3 @@ lto = true
 codegen-units = 1
 debug = false
 overflow-checks = false
-
-[[test]]
-name = "run-qemu"
-path = "tests/run-qemu.rs"
-edition = "2021"

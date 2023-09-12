@@ -16,7 +16,6 @@ _start:
     mov cs, ax # Set Code Segment register to 0
     mov ds, ax # Set Data Segment register to 0
     mov ss, ax # Set Stack Segment register to 0
-    mov es, ax # Set Extra Segment register to 0
     mov fs, ax # Set General Purpose Segment register to 0
     mov gs, ax # Set General Purpose Segment register to 0
 
@@ -24,7 +23,7 @@ _start:
     cld
 
     # Load boot drive number from register into variable
-    mov [BOOT_DRIVE], dl
+    mov [BOOT_DRIVE], dx
 
     # Set Stack Pointer to variable
     mov sp, [STACK_OFFSET]
@@ -34,3 +33,7 @@ _start:
 rust:
     push [BOOT_DRIVE] # Push boot drive number to stack
     call boot # Call the 'boot' function in main
+
+spin:
+    hlt
+    jmp spin
