@@ -11,8 +11,10 @@ test = ["dep:testing"]
 [dependencies]
 testing = { path = "../testing", optional = true }
 
-bootloader_api = "0.11"
-log = { version = "0.4", default-features = false }
+
+bootloader_api.workspace = true
+log.workspace = true
+
 conquer-once = { version = "0.4", default-features = false }
 spinning_top = "0.2"
 uart_16550 = "0.3"
@@ -29,4 +31,4 @@ features = [
 ]
 
 [build-dependencies]
-bootloader = "0.11"
+bootloader.workspace = true

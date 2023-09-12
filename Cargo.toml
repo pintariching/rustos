@@ -3,7 +3,7 @@ name = "rustos"
 version = "0.1.0"
 
 [build-dependencies]
-bootloader = "0.11"
+bootloader.workspace = true
 rustos-kernel = { path = "rustos-kernel", artifact = "bin", target = "x86_64-unknown-none" }
 rustos-test = { path = "rustos-test", artifact = "bin", target = "x86_64-unknown-none" }
 
@@ -13,8 +13,12 @@ ovmf-prebuilt = "0.1.0-alpha.1"
 
 [workspace.dependencies]
 x86_64 = "0.14"
-log = "0.4"
+log = { version = "0.4", default-features = false }
 linkme = "0.3"
+bootloader = "0.11"
+bootloader_api = "0.11"
+thiserror = { version = "1.0", package = "thiserror-core", default-features = false }
+
 
 [workspace]
 members = ["rustos-kernel", "rustos-test", "testing"]

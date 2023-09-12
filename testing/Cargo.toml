@@ -7,7 +7,7 @@ edition = "2021"
 
 [dependencies]
 testing-derive = { path = "derive" }
-x86_64 = "0.14"
-log = "0.4"
-linkme = "0.3"
-thiserror = { version = "1.0", package = "thiserror-core", default-features = false }
+x86_64.workspace = true
+log.workspace = true
+linkme.workspace = true
+thiserror.workspace = true
