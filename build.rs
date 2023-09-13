@@ -4,12 +4,15 @@ use std::process::Command;
 const BOOTLOADER_VERSION: &str = env!("CARGO_PKG_VERSION");
 
 fn main() {
-    bios_main();
-}
-
-fn bios_main() {
     let out_dir = PathBuf::from(std::env::var("OUT_DIR").unwrap());
 
+    bios_main(&out_dir);
+
+    let bios_path = out_dir.join("bin").join("rustos-bootloader.bin");
+    println!("cargo:rustc-env=BIOS_PATH={}", bios_path.display());
+}
+
+fn bios_main(out_dir: &Path) {
     let boot_sector_path = build_bios_boot_sector(&out_dir);
 
     println!(

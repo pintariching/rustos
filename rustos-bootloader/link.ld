@@ -46,8 +46,11 @@ SECTIONS {
     }
 
     . = 0x7c00 + 510;
+
     .magic_number :
     {
         SHORT(0xaa55)
     }
+    
+    _second_stage_start = .;
 }

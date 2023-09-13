@@ -4,10 +4,16 @@ version = "0.1.0"
 
 
 [dependencies]
+anyhow = "1.0"
+llvm-tools = "0.1"
+fatfs = { version = "0.3", default-features = false, features = [
+    "std",
+    "alloc",
+] }
+
 
 [build-dependencies]
 llvm-tools = "0.1"
-
 
 [workspace]
 members = ["rustos-bootloader"]
