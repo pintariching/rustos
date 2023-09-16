@@ -9,7 +9,7 @@ SECTIONS {
     _mbr_start = .;
     .boot :
     {
-        *(.boot .boot*)
+        *(.boot .boot.*)
     }
     .text :
     {
@@ -27,6 +27,24 @@ SECTIONS {
     }
     _mbr_end = .;
 
+    . = 0x7c00 + 446;
+    _partition_table = .;
+    .partition_table :
+    {
+        /* partition table entry 0 */
+        QUAD(0)
+        QUAD(0)
+        /* partition table entry 1 */
+        QUAD(0)
+        QUAD(0)
+        /* partition table entry 2 */
+        QUAD(0)
+        QUAD(0)
+        /* partition table entry 3 */
+        QUAD(0)
+        QUAD(0)
+    }
+
     . = 0x7c00 + 510;
 
     .magic_number :
@@ -34,13 +52,12 @@ SECTIONS {
         SHORT(0xaa55)
     }
 
-    . = 0x7c00 + 512;
+    . = 0x7e00;
     .fill :
     {
         . = ALIGN(4);
         FILL(0xDEADBEEF);
-        . = 0x7c00 + 512 + 512;
+        . = 0x7f00;
     }
-    
-    _second_stage_start = .;
+   
 }
