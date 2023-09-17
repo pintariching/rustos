@@ -6,12 +6,6 @@
 
 .global _start # Makes the '_start' symbol visible to the linker
 .code16 # Sets up 16 bit mode
-.org 0x7c00
-
-; BOOT_DRIVE: .byte 0
-; KERNEL_OFFSET: .int 0x10000
-; STACK_BASE: .int 0x8000
-; STACK_SIZE: .int 0x200 # 512 bytes
 
 _start:
     push dx
