@@ -8,7 +8,7 @@ fn main() {
 
     bios_main(&out_dir);
 
-    let bios_path = out_dir.join("bin").join("rustos-bootloader.bin");
+    let bios_path = out_dir.join("bin").join("bootloader-stage-1.bin");
     println!("cargo:rustc-env=BIOS_PATH={}", bios_path.display());
 }
 
@@ -25,9 +25,11 @@ fn build_bios_boot_sector(out_dir: &Path) -> PathBuf {
     let cargo = std::env::var("CARGO").unwrap_or_else(|_| "cargo".into());
 
     let mut cmd = Command::new(cargo);
-    cmd.arg("install").arg("rustos-bootloader");
+    cmd.arg("install").arg("bootloader-stage-1");
 
-    let local_path = Path::new(env!("CARGO_MANIFEST_DIR")).join("rustos-bootloader");
+    let local_path = Path::new(env!("CARGO_MANIFEST_DIR"))
+        .join("rustos-bootloader")
+        .join("stage-1");
 
     if local_path.exists() {
         cmd.arg("--path").arg(&local_path);
@@ -50,7 +52,7 @@ fn build_bios_boot_sector(out_dir: &Path) -> PathBuf {
         .status()
         .expect("failed to run cargo install for bios bootsector");
     let elf_path = if status.success() {
-        let path = out_dir.join("bin").join("rustos-bootloader");
+        let path = out_dir.join("bin").join("bootloader-stage-1");
         assert!(
             path.exists(),
             "bios boot sector executable does not exist after building"

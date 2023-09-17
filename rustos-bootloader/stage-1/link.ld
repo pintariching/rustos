@@ -51,13 +51,4 @@ SECTIONS {
     {
         SHORT(0xaa55)
     }
-
-    . = 0x7e00;
-    .fill :
-    {
-        . = ALIGN(4);
-        FILL(0xDEADBEEF);
-        . = 0x7f00;
-    }
-   
 }

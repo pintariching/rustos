@@ -1,15 +1,11 @@
 use core::arch::asm;
 
-#[no_mangle]
-pub extern "C" fn print_char(char: u8) {
+pub fn print_char(char: u8) {
+    let ax = char as u16 | 0x0e00;
     unsafe {
         asm! {
-            // "push bx",
-            // "mov bx, 0",
-            "mov ah, 0x0e",
             "int 0x10",
-            // "pop bx",
-            in("al") char,
+            in("ax") ax,
         }
     }
 }

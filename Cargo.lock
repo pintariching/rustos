@@ -15,6 +15,14 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "bef38d45163c2f1dde094a7dfd33ccf595c92905c8f8f4fdc18d06fb1037718a"
 
 [[package]]
+name = "bootloader-stage-1"
+version = "0.1.0"
+
+[[package]]
+name = "bootloader-stage-2"
+version = "0.1.0"
+
+[[package]]
 name = "byteorder"
 version = "1.4.3"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -51,7 +59,3 @@ dependencies = [
  "fatfs",
  "llvm-tools",
 ]
-
-[[package]]
-name = "rustos-bootloader"
-version = "0.1.0"
