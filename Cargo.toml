@@ -4,22 +4,31 @@ version = "0.1.0"
 
 
 [dependencies]
-ovmf-prebuilt = "0.1.0-alpha.1"
+anyhow = "1.0"
+llvm-tools = "0.1"
+fatfs = { version = "0.3", default-features = false, features = [
+    "std",
+    "alloc",
+] }
+
 
 [build-dependencies]
-bootloader = "0.11"
-rustos-kernel = { path = "rustos-kernel", artifact = "bin", target = "x86_64-unknown-none" }
+llvm-tools = "0.1"
 
 [workspace]
-members = ["rustos-kernel"]
+members = ["rustos-bootloader/stage-1", "rustos-bootloader/stage-2"]
 resolver = "2"
-
-[workspace.dependencies]
-bootloader_api = "0.11"
-
 
 [profile.dev]
 panic = "abort"
 
 [profile.release]
 panic = "abort"
+
+[profile.stage-1]
+inherits = "release"
+opt-level = "s"
+lto = true
+codegen-units = 1
+debug = false
+overflow-checks = false
