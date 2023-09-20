@@ -29,6 +29,7 @@ fn build_bios_boot_sector(out_dir: &Path) -> PathBuf {
 
     let local_path = Path::new(env!("CARGO_MANIFEST_DIR"))
         .join("rustos-bootloader")
+        .join("bios")
         .join("stage-1");
 
     if local_path.exists() {
