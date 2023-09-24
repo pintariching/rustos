@@ -3,160 +3,69 @@
 
 mod disk_address_packet;
 mod fail;
+mod mbr;
 mod print;
+mod setup;
 
-use core::arch::{asm, global_asm};
-use core::ptr;
-
+use core::arch::global_asm;
+use disk_address_packet::DiskAddressPacket;
+use mbr::PartitionTableEntry;
 use print::print_char;
+use setup::setup;
 
-global_asm!(include_str!("boot.s"), options(raw));
+global_asm!(include_str!("boot-start.s"), options(raw));
+
+extern "C" {
+    static _partition_table: u8;
+    static _start_stage_2: u8;
+}
 
 #[no_mangle]
 pub extern "C" fn start() {
-    print_char(b'A');
+    let disk_number = setup();
 
-    zero_registers();
-    print_char(b'B');
+    let second_stage_start = {
+        let ptr: *const u8 = { unsafe { &_start_stage_2 } };
+        ptr as *const ()
+    };
 
-    let disk_number = read_disk_number();
-    print_char(b'C');
+    let partition_table_ptr = unsafe { &_partition_table };
+    let partition_table = PartitionTableEntry::from_raw_pointer(partition_table_ptr);
 
-    setup_stack();
-    print_char(b'D');
+    let mut start_lba = 1;
+    let mut number_of_sectors = 1;
+    let mut target_addr = second_stage_start as u32;
 
-    clear_direction_flag();
-    print_char(b'E');
+    loop {
+        let sectors = u32::min(number_of_sectors, 32) as u16;
+        let dap = DiskAddressPacket::from_lba(
+            start_lba,
+            sectors,
+            (target_addr & 0b11110000) as u16,
+            (target_addr >> 4).try_into().unwrap(),
+        );
 
-    enable_a20_line();
-    print_char(b'F');
+        dap.load(disk_number);
 
-    check_int13_extensions_available(disk_number);
-}
+        start_lba += sectors as u64;
+        number_of_sectors -= sectors as u32;
+        target_addr += sectors as u32 * 512;
 
-fn zero_registers() {
-    unsafe {
-        asm! {
-            "xor ax, ax", // Set AX register to 0
-            "mov ds, ax", // Set Data Segment register to 0
-            "mov es, ax", // Set Extra Segment register to 0
-            "mov ss, ax" // Set Stack Segment register to 0
-        }
-    }
-}
-
-fn read_disk_number() -> u8 {
-    let mut disk_number: u8;
-
-    unsafe {
-        asm! {
-            "", // Empty instruction
-            out("dl") disk_number
+        if number_of_sectors == 0 {
+            break;
         }
     }
 
-    disk_number
+    stage_2(disk_number, partition_table_ptr)
 }
 
-fn setup_stack() {
-    unsafe {
-        asm! {
-            "mov ax, 0x8000",
-            "mov ss, ax", // Set Stack Segment to 0x8000
-            "add ax, 512",
-            "mov sp, ax" // Set Stack Pointer to 0x8000 + 512
-        }
-    }
+#[no_mangle]
+#[link_section = ".stage2"]
+pub extern "C" fn stage_2(_disk_number: u8, _partition_table_ptr: *const u8) {
+    print_char(b'2');
+    print_char(b'3');
+    print_char(b'4');
+    print_char(b'5');
+    print_char(b'2');
+    print_char(b'3');
 }
-
-fn clear_direction_flag() {
-    unsafe {
-        asm! {
-            "cld"
-        }
-    }
-}
-
-fn enable_a20_line() {
-    unsafe {
-        asm! {
-            "in al, 0x92", // Read from IO port 0x92 into register al
-            "test al, 2", // If al is 2, set flag zf to 1
-            "jnz 2f", // If zf == 0, jump forward to label 2
-            "or al, 2", // Set al to 2
-            "and al, 0xfe",
-            "out 0x92, al", // Output al to port 0x92
-            "2:",
-        }
-    }
-}
-
-fn check_int13_extensions_available(disk_number: u8) {
-    let mut supported_interfaces: u16;
-    unsafe {
-        asm! {
-            "push 'Y'", // Push error code
-            "mov ah, 0x41", // INT 13h AH=41h: Check Extensions Present
-            "mov bx, 0x55aa",
-            "int 0x13",
-            "jc fail",
-            "pop ax",
-            in("dl") disk_number, // Set drive number
-            out("cx") supported_interfaces
-
-        }
-    }
-
-    // Device Access using the packet structure
-    if (supported_interfaces & 1) == 1 {
-        print_char(b'G');
-    }
-
-    // Drive Locking and Ejecting
-    if (supported_interfaces & 2) == 2 {
-        print_char(b'H');
-    }
-
-    // Enhanced Disk Drive Support (EDD)
-    if (supported_interfaces & 4) == 4 {
-        print_char(b'I');
-    }
-}
-
-// fn read_disk(disk_number: u16) {
-//     //let mut read_count = 0u8;
-//     unsafe {
-//         asm! {
-//             "push 'z'",
-//             "mov ah, 2", // Read with CHS
-//             "mov al, 1", // Read 1 sectors
-//             "mov ch, 0", // Cylinder number
-//             "mov cl, 2", // Sector number
-//             "mov dh, 0", // Head number
-
-//             "mov bx, 0",
-//             "mov es, bx",
-//             "mov bx, 0x7e00", // Load address
-
-//             "int 0x13", // Read disk
-//             "jc fail",
-//             "add esp, 4", // Pop 'z' from the stack without storing it
-
-//             in("dx") disk_number,
-//             //out("al") read_count,
-//         }
-//     }
-
-//     // print_char(char::from_digit(read_count as u32, 10).unwrap() as u8);
-// }
-
-// fn print_at_address(addr: *const u16) {
-//     let val = unsafe { ptr::read(addr) };
-//     unsafe {
-//         asm! {
-//             "mov ah, 0x0e",
-//             "int 0x10",
-//             in("ax") val
-//         }
-//     }
-// }

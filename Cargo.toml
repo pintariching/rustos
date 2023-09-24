@@ -16,7 +16,11 @@ fatfs = { version = "0.3", default-features = false, features = [
 llvm-tools = "0.1"
 
 [workspace]
-members = ["rustos-bootloader/bios/stage-*", "rustos-bootloader/uefi"]
+members = [
+    "rustos-bootloader/bios/stage-*",
+    "rustos-bootloader/uefi",
+    "rustos-kernel",
+]
 resolver = "2"
 
 [profile.dev]

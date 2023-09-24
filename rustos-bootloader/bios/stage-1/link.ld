@@ -51,4 +51,10 @@ SECTIONS {
     {
         SHORT(0xaa55)
     }
+
+    . = 0x7e00;
+    _start_stage_2 = .;
+    .stage2 : {
+        *(.stage2 .stage2.*)
+    }
 }
